@@ -9,27 +9,49 @@
         <p id="textoAjuda" class="center-align">Clique numa disciplina abaixo para começar a agendar</p>
       </div>
 
-      <ul v-for="disciplina in disciplinas" class="collapsible popout" data-collapsible="acordion" :id="disciplina.codigo"> 
+      <ul v-for="disciplina in disciplinas" class="collapsible popout" data-collapsible="acordion" :id="disciplina.codigo">
         <li>
           <div @click="abrirCollapsible(disciplina.descricao,disciplina.codigo)" class="collapsible-header">
-            {{ disciplina.descricao }} 
+            {{ disciplina.descricao }}
             <!-- <i v-bind:style="{opacity: checkOpacity}" class="material-icons right">check</i> -->
           </div>
           <div class="collapsible-body">
-            <p align="center" :id="'resumo-' + disciplina.codigo">
-            </p>
-            <select :id="'select-' + disciplina.codigo" class="browser-default" v-model="unidadeSelecionada" v-on:change="exibicaoDaListaDeHorarios(disciplina.codigo)" required>
+              <h5 :id="'resumoHeader-' + disciplina.codigo" align="center"><strong>Prova Agendada</strong></h5>
+            <table :id="'resumo-' + disciplina.codigo" class="highlight centered">
+              <thead>
+                <tr>
+                  <th>Unidade</th>
+                  <th>Data</th>
+                  <th>Sala</th>
+                  <th></th>
+                </tr>
+              </thead>
+            </table>
+            <select :id="'select-' + disciplina.codigo" class="browser-default" v-model="unidadeSelecionada" v-on:change="exibicaoDaListaDeHorarios(disciplina.codigo)"
+              required>
               <option value="" disabled selected>Unidade:</option>
               <option v-for="unidade in disciplina.unidades" v-bind:value="unidade">
                 {{ unidade.descrição }}
               </option>
             </select>
             <div :id="'horario-' + disciplina.codigo">
-              <div class="collection">
-                <a @click="abrirModalDeConfirmacaoDeDisciplina(disciplina, horario.data, horario.sala)" class="collection-item center btn modal-trigger" v-for="horario in unidadeSelecionada.horarios">
-                  {{ horario.data | dataFormatada }} - {{ horario.data | horarioFormatado }} - Sala {{ horario.sala }}
-                </a>
-              </div>
+              <table class="highlight centered">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Horario</th>
+                    <th>Sala</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr @click="abrirModalDeConfirmacaoDeDisciplina(disciplina, horario.data, horario.sala)" class="collection-item center modal-trigger blocoHorario"
+                    v-for="horario in unidadeSelecionada.horarios">
+                    <td>{{ horario.data | dataFormatada }}</td>
+                    <td> {{ horario.data | horarioFormatado }}</td>
+                    <td> Sala {{ horario.sala }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </li>
@@ -39,11 +61,10 @@
         <div class="modal-content">
           <h4 align="center">Confirmar Disciplina?</h4>
           <p align="center">
-            Disciplina: {{ selecaoExibidaNoModal.disciplinaSelecionada }}<br>
-            Unidade: {{ selecaoExibidaNoModal.unidadeSelecionada }}<br>
-            Data: {{ selecaoExibidaNoModal.dataSelecionada }}<br>
-            Sala: {{ selecaoExibidaNoModal.salaSelecionada }}
-            
+            Disciplina: {{ selecaoExibidaNoModal.disciplinaSelecionada }}<br> Unidade: {{ selecaoExibidaNoModal.unidadeSelecionada
+            }}
+            <br> Data: {{ selecaoExibidaNoModal.dataSelecionada }}<br> Sala: {{ selecaoExibidaNoModal.salaSelecionada }}
+
             <!-- Não sei porque dá erro formatando dessa forma!! ↓↓↓↓↓↓↓ -->
             <!-- Data: {{ selecaoExibidaNoModal.dataSelecionada | dataFormatada }}<br> -->
             <!-- Horario: {{ selecaoExibidaNoModal.dataSelecionada | horarioFormatado }}<br> -->
@@ -59,6 +80,8 @@
   </div>
 
 </template>
+
+
 
 <script>
 import disciplinasJSON from '../../dados_json/disciplinascompleto.json'
@@ -92,10 +115,12 @@ export default {
                                                    // este código fecha os outros collapsibles.
                                                    // Precisamos rever isso, para não precisarmos fechar.
                                                    // Além disso, dessa forma, depois de aberto, o usuário só consegue fechar o collapsible
-                                                   // quando abre outro.
-        $('#horario-' + codigo).hide();
+                                                  // quando abre outro.
+        $('#resumoHeader-' + codigo).hide(); //Escondendo o paragráfo do resumo
+        $('#resumo-' + codigo).hide(); //Escondendo o resumo
+        $('#horario-' + codigo).hide(); //Escondendo os horários da disciplina
         this.mostrarResumoDoAgendamento(); //chama a função de mostrar o resumo ao abrir o collapsible
-        $('#' + codigo).collapsible('open');
+        $('#' + codigo).collapsible('open'); //abrindo o collapsible clicado
       },
       abrirModalDeConfirmacaoDeDisciplina: function (disciplina, data, sala) {
         this.selecaoExibidaNoModal.disciplinaSelecionada = disciplina.descricao;
@@ -139,7 +164,10 @@ export default {
           var qtdDisciplinas = Object.keys(this.objResumoAgendamento).length; //armazenando o tamanho do objeto para ser usado no for
           for (var i = 0; i < qtdDisciplinas; i++) {
             if (this.descricaoTemp == this.objResumoAgendamento[i].disciplinaAgendada) { //testa se a descricao da disciplina clicada no collapsible é igual ao que está guardado no local storage
-              $('#resumo-' + this.codigoTemp).append("<h5>Informações do Agendamento:</h5> <br> "+ " <strong>Unidade: </strong>" + this.objResumoAgendamento[i].unidadeAgendada + "<br> <strong>Data: </strong>" + this.objResumoAgendamento[i].dataAgendada + "<br><strong> Sala: </strong>" +this.objResumoAgendamento[i].salaAgendada + "<br><br><a onclick=alert('botão_comunista...não_funciona'); style='font-size:14px;' class='red darken-4 waves-effect waves-light btn'>Cancelar Agendamento</a>"); //gambiarra para inserir o agendamento no collapsible
+              $('#resumoHeader-' + this.codigoTemp).show(); //deixando o header do resumo visivel
+              $('#resumo-' + this.codigoTemp).show(); //deixando a tabela com o resumo vísivel
+              //gambiarra para inserir o resumo do agendamento na tabela
+              $('#resumo-' + this.codigoTemp).append("<tbody><tr><td>" + this.objResumoAgendamento[i].unidadeAgendada + "</td> <td>" + this.objResumoAgendamento[i].dataAgendada + "</td> <td>" +this.objResumoAgendamento[i].salaAgendada + "</td> <td><a onclick=alert('botão_comunista...não_funciona'); style='font-size:14px;' class='red darken-4 waves-effect waves-light btn'>Cancelar Agendamento</a></td></tr></tbody>"); 
               $('#select-' + this.codigoTemp).hide(); //esconde o select
               $('#horario-' + this.codigoTemp).hide(); //esconde os horários
               $('#resumo-' + this.codigoTemp).prop('id', 'XGH'); //gambiarra gambiarrosa gambiarrenta para mudar o ID e não inserir o agendamento novamente ao clicar duas vezes no collapsible
