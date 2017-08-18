@@ -15,8 +15,8 @@
             {{ disciplina.descricao }}
             <!-- <i v-bind:style="{opacity: checkOpacity}" class="material-icons right">check</i> -->
           </div>
-          <div class="collapsible-body">
-              <h5 :id="'resumoHeader-' + disciplina.codigo" align="center"><strong>Prova Agendada</strong></h5>
+          <div class="collapsible-body" >
+              <h5 :id="'resumoHeader-' + disciplina.codigo" align='center'><strong>Prova Agendada</strong></h5>
             <table :id="'resumo-' + disciplina.codigo" class="highlight centered">
               <thead>
                 <tr>
@@ -27,6 +27,7 @@
                 </tr>
               </thead>
             </table>
+            <div :id="'botaoCancelar-'+ disciplina.codigo" class="center"></div>
             <select :id="'select-' + disciplina.codigo" class="browser-default" v-model="unidadeSelecionada" v-on:change="exibicaoDaListaDeHorarios(disciplina.codigo)"
               required>
               <option value="" disabled selected>Unidade:</option>
@@ -119,6 +120,7 @@ export default {
         $('#resumoHeader-' + codigo).hide(); //Escondendo o paragráfo do resumo
         $('#resumo-' + codigo).hide(); //Escondendo o resumo
         $('#horario-' + codigo).hide(); //Escondendo os horários da disciplina
+        $('botaoCancelar-'+codigo).hide();
         this.mostrarResumoDoAgendamento(); //chama a função de mostrar o resumo ao abrir o collapsible
         $('#' + codigo).collapsible('open'); //abrindo o collapsible clicado
       },
@@ -155,6 +157,7 @@ export default {
           localStorage.setItem("Agendamentos",JSON.stringify(arrayDeAgendamentos));
           this.mostrarResumoDoAgendamento();
         }
+        
       },
       mostrarResumoDoAgendamento: function () {
         //Pega os agendamentos do banco de dados
@@ -167,10 +170,12 @@ export default {
               $('#resumoHeader-' + this.codigoTemp).show(); //deixando o header do resumo visivel
               $('#resumo-' + this.codigoTemp).show(); //deixando a tabela com o resumo vísivel
               //gambiarra para inserir o resumo do agendamento na tabela
-              $('#resumo-' + this.codigoTemp).append("<tbody><tr><td>" + this.objResumoAgendamento[i].unidadeAgendada + "</td> <td>" + this.objResumoAgendamento[i].dataAgendada + "</td> <td>" +this.objResumoAgendamento[i].salaAgendada + "</td> <td><a onclick=alert('botão_comunista...não_funciona'); style='font-size:14px;' class='red darken-4 waves-effect waves-light btn'>Cancelar Agendamento</a></td></tr></tbody>"); 
+              $('#resumo-' + this.codigoTemp).append("<tbody><tr><td>" + this.objResumoAgendamento[i].unidadeAgendada + "</td> <td>" + this.objResumoAgendamento[i].dataAgendada + "</td> <td>" +this.objResumoAgendamento[i].salaAgendada + "</td></tr></tbody>"); 
+              $('#botaoCancelar-'+this.codigoTemp).append("<a onclick=alert('botão_comunista...não_funciona') style='font-size:14px;' class='red darken-4 waves-effect waves-light btn'>Cancelar Agendamento</a>");
               $('#select-' + this.codigoTemp).hide(); //esconde o select
               $('#horario-' + this.codigoTemp).hide(); //esconde os horários
               $('#resumo-' + this.codigoTemp).prop('id', 'XGH'); //gambiarra gambiarrosa gambiarrenta para mudar o ID e não inserir o agendamento novamente ao clicar duas vezes no collapsible
+              $('#botaoCancelar-' + this.codigoTemp).prop('id', 'XGH2');
             }
           }
         }
